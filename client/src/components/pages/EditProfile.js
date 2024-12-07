@@ -11,13 +11,18 @@ function EditProfile() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     useEffect(() => {
-        if (location.state) {
-            if (location.state.profile) setProfile(location.state.profile);
-            if (location.state.profiles) setProfiles(location.state.profiles);
+        const profile = location.state?.profile
+        const profiles = location.state?.profiles
+
+        if (!profile || !profiles) {
+            navigate("/login");
+        } else {
+            setProfile(location.state.profile);
+            setProfiles(location.state.profiles);
         }
-    }, [location.state]);
+    }, [location, navigate]);
 
     function profileMatch() {
         return profiles.some(p => (p["email"] === profile["emailSignUp"] || p["nome"] === profile["nameSignUp"]))
@@ -37,11 +42,7 @@ function EditProfile() {
         if (!profileMatch()) {    
             if (!profile["bio"]) profile["bio"] = "";
 
-            sessionStorage.setItem("profileReady", JSON.stringify(profile));
-            sessionStorage.removeItem("profile");
-            sessionStorage.removeItem("profilesExists");
-
-            navigate("/profilePreferences", {state: {profile: profile}});
+            navigate("/profilePreferences", {state: {profileReady: profile}});
         } else {
             setMessageWithReset("Já existe um perfil com o mesmo nome.", "error");
         }

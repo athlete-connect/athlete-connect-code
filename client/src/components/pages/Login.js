@@ -60,9 +60,6 @@ function Login() {
         e.preventDefault();
 
         if (!profileMatch()) {
-            sessionStorage.setItem("profile", JSON.stringify(profile));
-            sessionStorage.setItem("profilesExists", "true");
-
             navigate("/editProfile", {state: {profile: profile, profiles: profiles}})
         } else {
             setMessageWithReset("Já existe um perfil com o mesmo nome ou e-mail.", "error");

@@ -1,7 +1,7 @@
 import InputField from "./InputField";
 import SubmitButton from "./SubmitButton";
 import styles from "./EditProfileForm.module.css"
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 function EditProfileForm({handleSubmit, profile, setProfile}) {
     const [privateProfile, setPrivateProfile] = useState(false);
@@ -9,25 +9,34 @@ function EditProfileForm({handleSubmit, profile, setProfile}) {
     const [haveError, setHaveError] = useState(false);
 
     function handleOnChange(e) {
+        if (e.target.name === "nameSignUp") e.target.value = e.target.value.replace(/\s+/g, "");
+
         setProfile({ ...profile, [e.target.name]: e.target.value });
     }
 
     function handleOnChangePrivate() {
-        setPrivateProfile(!privateProfile);
-        setProfile({...profile, private: privateProfile })
+        const newPrivateProfile = !privateProfile;
+        setPrivateProfile(newPrivateProfile); 
+        setProfile({ ...profile, private: newPrivateProfile });
     }
 
     function handleOnChangeAcceptTerms() {
-        setAcceptTerms(!acceptTerms);
-        setProfile({...profile, acceptTerms: acceptTerms })
+        const newAcceptTerms = !acceptTerms;
+        setAcceptTerms(newAcceptTerms);
+        setProfile({...profile, acceptTerms: newAcceptTerms })
     }
 
-    const validateName = () => profile["nameSignUp"] && /^[a-zA-Z0-9_@+&.]{4,30}$/.test(profile["nameSignUp"]);
-    const validateBio = () => (profile["bio"] && profile["bio"].length <= 150) || !profile["bio"];
+    const validateName = useCallback(() => {
+        return profile["nameSignUp"] && /^[a-zA-Z0-9_@+&.]{4,30}$/.test(profile["nameSignUp"]);
+    }, [profile]); 
+    
+    const validateBio = useCallback(() => {
+        return (profile["bio"] && profile["bio"].length <= 150) || !profile["bio"];
+    }, [profile]);
 
     useEffect(() => {
         setHaveError(!(validateName() && validateBio() && acceptTerms));
-    }, [profile]);
+    }, [acceptTerms, profile, validateBio, validateName]);
 
     return (
         <form onSubmit={handleSubmit} className={`${styles.edit_profile_form}`}>
